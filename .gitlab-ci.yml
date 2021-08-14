@@ -3,6 +3,7 @@ stages:
   - release
 
 variables:
+  GIT_SUBMODULE_STRATEGY: recursive
   GIT_DEPTH: 10
   DOCKER_HOST: tcp://docker:2376
   DOCKER_TLS_CERTDIR: "/certs"
