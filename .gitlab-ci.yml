@@ -1,0 +1,33 @@
+stages:
+  - build
+  - release
+
+variables:
+  GIT_DEPTH: 10
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: "/certs"
+  SLUG: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  CALENDSO_TAG: $CI_REGISTRY_IMAGE/calendso:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  CALENDSO_RELEASE_TAG: $CI_REGISTRY_IMAGE/calendso:latest
+
+default:
+  image: docker
+  services:
+    - docker:19.03.12-dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
+
+build:calendso:
+  stage: build
+  script:
+    - docker build --build-arg version=$SLUG -t $CALENDSO_TAG .
+    - docker push $CALENDSO_TAG
+
+
+release:calendso:
+  stage: release
+  script:
+    - docker pull $CALENDSO_TAG
+    - docker tag $CALENDSO_TAG $CALENDSO_RELEASE_TAG
+    - docker push $CALENDSO_RELEASE_TAG
